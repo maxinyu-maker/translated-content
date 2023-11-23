@@ -23,13 +23,17 @@ slug: Web/API/Web_Workers_API/Transferable_objects
 // Create an 8MB "file" and fill it. 8MB = 1024 * 1024 * 8 B
 const uInt8Array = new Uint8Array(1024 * 1024 * 8).map((v, i) => i);
 console.log(uInt8Array.byteLength); // 8388608
+console.log(uInt8Array.byteOffset); // 0
+
+// Obtain ArrayBuffer referenced by Uint8Array (when byteOffset is 0, uInt8Array.buffer is equivalent to ArrayBuffer referenced by uInt8Array)
+const arrayBufferData = uInt8Array.buffer.slice(uInt8Array.byteOffset, uInt8Array.byteLength + uInt8Array.byteOffset);
 
 // Transfer the underlying buffer to a worker
-worker.postMessage(uInt8Array, [uInt8Array.buffer]);
+worker.postMessage(uInt8Array, [arrayBufferData]);
 console.log(uInt8Array.byteLength); // 0
 ```
 
-> **备注：** 像 {{jsxref("Int32Array")}} 和 {{jsxref("Uint8Array")}} 等[类型化数组](/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)是{{Glossary("serializable object","可序列化的")}}，但是不能转移。然而，它们的底层缓冲区是一个 {{jsxref("ArrayBuffer")}}，它是一个可转移对象。我们可以在数据参数中发送 `uInt8Array.buffer`，但是不能在传输数组中发送 `uInt8Array`。
+> **备注：** 像 {{jsxref("Int32Array")}} 和 {{jsxref("Uint8Array")}} 等[类型化数组](/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/TypedArray)是{{Glossary("serializable object","可序列化的")}}，但是不能转移。然而，它们的底层缓冲区是一个 {{jsxref("ArrayBuffer")}}，它是一个可转移对象。我们可以在数据参数中发送 Uint8Array 引用的 ArrayBuffer，但是不能在传输数组中发送 `uInt8Array`。
 
 ### 在进行克隆操作时转移
 
